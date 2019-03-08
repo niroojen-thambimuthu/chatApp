@@ -2,45 +2,31 @@ $(function () {
 	var socket = io();
 	var clientName = '';
 	var cookieCounter = 0;
-	
+	var indexCounter = 0;
 	
 	var tempCookie = false;
-	
 	if (document.cookie.split(';').filter(function(item) {
 		return item.trim().indexOf('ClientName=') == 0
 	}).length) {
-    //console.log('The cookie "ClientName" exists (ES5)')
 	tempCookie = true;
 	}
-
-	
 	socket.emit('cookie test', {cookieStatus: tempCookie, cookieName: document.cookie.replace(/(?:(?:^|.*;\s*)ClientName\s*\=\s*([^;]*).*$)|^.*$/, "$1")});
 
+	
 	$('form').submit(function(e){
 		e.preventDefault(); // prevents page reloading
 		socket.emit('chat message', $('#m').val());
 		$('#m').val('');
 		return false;
-	});
-				
-	/*
-	socket.on('chat message', function(msg){
-		$('#messages').append($('<li>').text(msg));
-		//$('#messages').append($('<p>').text(msg));	
-	});
-	*/
-				
+	});		
 				
 	socket.on('getCurrentUser', function(msg){
 		//location.reload();
 		$('#currentUser').empty();
-		
-		
 		var cookieExist = false;
 		if (document.cookie.split(';').filter(function(item) {
 			return item.trim().indexOf('ClientName=') == 0
 		}).length) {
-			// console.log('The cookie "ClientName" exists (ES5)')
 			cookieExist = true;
 		}
 	
@@ -52,42 +38,16 @@ $(function () {
 		else{
 			var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)ClientName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 			if (cookieValue === clientName){
-				//clientName = msg;
 				document.cookie = "ClientName="+msg+";max-age="+600;
 			}
 		}	
 		clientName = msg;
 		$('#currentUser').append($('<p>').text("\n\n\tYou are user: "+msg));
-	});
-	
-	socket.on('refresh',function(msg) {
-		//for(var i = 0; i = 1; i++){
-		location.reload(true);
-		//}
-		
-	});
-
-	
-	socket.on('changeUsername',function(msg) {
-		var time = msg.time;
-		var name1 = msg.name1;
-		var name2 = msg.name2;
-		var toDisplay = '';
-					
-		if (clientName === name1){
-			name1 = name1.bold();
-			name2 = name2.bold();
-		}
-					
-		toDisplay = time + "\t" + name1 + " changed to " + name2;
-		$('#messages').append($('<li>').html(toDisplay));
-	});
-			
+	});	
 	
 	socket.on('cookieUserBUG',function(msg) {
 		var previous = msg.previous;
 		var changed = msg.changed;
-		
 		if (clientName === previous){
 			$('#currentUser').empty();
 			clientName = changed;
@@ -102,6 +62,7 @@ $(function () {
 		var name = msg.name; // here, it should be data.name instead of data.username
 		var message = msg.message;
 		var toDisplay = '';
+		
 					
 					
 		for(var i = 0; i<time.length;i++){
@@ -121,9 +82,13 @@ $(function () {
 			}
 					
 			//toDisplay = x.bold() + "\t" + y.bold() + "\t" + z.bold();
-			$('#messages').append($('<li>').html(toDisplay));
+			var temp = i + 1;
+			$('#messages').append($('<li>').html(temp+": "+toDisplay));
 					
 		}
+		indexCounter = time.length;
+		console.log("IndexCOunter: "+indexCounter);
+		
 					
 		//toDisplay = time + "\t" + name + "\t" + message;
 		//$('#messages').append($('<li>').html(toDisplay));
@@ -144,10 +109,13 @@ $(function () {
 		}
 					
 		toDisplay = time + "\t" + name + "\t" + message;
-					
-					
+								
 		console.log("Test:\t" + time + "\t" + name + "\t" + message);
-		$('#messages').append($('<li>').html(toDisplay));
+		
+		var temp = indexCounter+1;
+		indexCounter = temp;
+		console.log("IndexCOunter: "+indexCounter);
+		$('#messages').append($('<li>').html(temp+": "+toDisplay));
 	});
 				
 				
@@ -167,8 +135,8 @@ $(function () {
 		for(var z = 0; z<tempList.length;z++){
 			$('#userlists').append($('<li>').text(tempList[z]));
 		}
-		console.log("test this shit:  "+html);
-		console.log("fuck this shit:  "+tempList);
+		//console.log("test this shit:  "+html);
+		//console.log("fuck this shit:  "+tempList);
 	});
 							
 });
