@@ -72,10 +72,16 @@ $(function () {
 			var z = message[i];
 						
 			if (clientName === y){
-				toDisplay = x + "\t" + y.bold() + "\t" + z.bold();
+				toDisplay = x.bold() + "\t" + y.bold() + "\t" + z.bold();
+			}
+			else if (z.includes(" changed to ")===true && z.includes(clientName)===true){
+				x = x.bold();
+				y = y.bold();
+				z = z.bold();
+				toDisplay = x.italics() + "\t" + y.italics() + "\t" + z.italics();
 			}
 			else if (z.includes(" changed to ")===true){
-				toDisplay = x + "\t" + y.italics() + "\t" + z.italics();
+				toDisplay = x.italics() + "\t" + y.italics() + "\t" + z.italics();
 			}
 			else{
 				toDisplay = x + "\t" + y + "\t" + z;
@@ -88,10 +94,6 @@ $(function () {
 		}
 		indexCounter = time.length;
 		console.log("IndexCOunter: "+indexCounter);
-		
-					
-		//toDisplay = time + "\t" + name + "\t" + message;
-		//$('#messages').append($('<li>').html(toDisplay));
 	});
 				
 				
@@ -103,7 +105,7 @@ $(function () {
 		var toDisplay = '';
 					
 		if (clientName === name){
-			//time = time.bold();
+			time = time.bold();
 			name = name.bold();
 			message = message.bold();
 		}
