@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var userTemp = 0;
+var userTemp = -1;
 var allUsernames = [];
 var existedUsername = [];
 
@@ -24,27 +24,55 @@ app.get('/A3_JS.js',function(req, res){
 
 // user interaction
 io.on('connection', function(socket){
-	console.log('a user connected');
-	//var xCookie = document.cookie;
-	//console.log("Cookie list:\t"+xCookie);
-	//socket.on('cookieCheck', function(msg){
-	//	console.log("Cookie check:\t"+msg);
-	//});
+	console.log('a user connected\n');
 	
+	var tempUser = "";
+	
+	
+	// https://stackoverflow.com/questions/24041220/sending-message-to-a-specific-id-in-socket-io-1-0
 	socket.on('cookie test', function(msg){
-		console.log("Cookie check:\t"+msg);
+		var cookieStatus = msg.cookieStatus;
+		var cookieName = msg.cookieName;
+		
+		
+		if (cookieStatus===false){
+			tempUser = "User"+userTemp;
+			console.log("NewUSER:\t"+userTemp);
+			socket.username = tempUser;
+			existedUsername.push(socket.username);
+			console.log("New client ID:\t"+socket.id);
+		}
+		else{
+			tempUser = cookieName;
+			socket.username = tempUser;
+		}
+		
+		allUsernames.push(socket.username);
+		
+		
+		console.log("Username check:\t"+tempUser);
+		// emit client username, userlist and chatlogs
+		io.to(socket.id).emit('getCurrentUser',socket.username);
+		io.emit('usernames',allUsernames);	
+		io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
+		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
 	
 	
-	// generate random username for connected client
-	socket.username = "User"+userTemp;
-	allUsernames.push(socket.username);
-	existedUsername.push(socket.username);
+	//console.log("ALL connected clients:\t"+clients);
 	
-	// emit client username, userlist and chatlogs
-	io.to(socket.id).emit('getCurrentUser',socket.username);
-	io.emit('usernames',allUsernames);	
-	io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
+	// generate random username for connected client
+	//tempUser = "User"+userTemp;
+	//socket.username = tempUser;
+	//allUsernames.push(socket.username);
+	//existedUsername.push(socket.username);
+	
+	//console.log("a user Connected: end");
+	
+	
+	
+	
+
   
   
 	// change this for all stuff
@@ -76,6 +104,7 @@ io.on('connection', function(socket){
 			// swap to new username
 			else{
 				io.to(socket.id).emit('getCurrentUser',userSplit);
+				io.emit('cookieUserBUG',{previous: socket.username, changed: userSplit});
 				for(var i = 0; i<allUsernames.length;i++){
 					if(allUsernames[i]===socket.username){
 						allUsernames[i] = userSplit;
@@ -102,8 +131,15 @@ io.on('connection', function(socket){
 					//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
 				}
 				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
+				
+				console.log("\n\nChange 1: user:\t"+socket.username);
+				console.log("Change 2: user:\t"+userSplit+"\n\n");
+				
+				
 			 
 				socket.username = userSplit;
+				existedUsername.push(socket.username);
+				//io.sockets.emit('refresh', msg);
 			}
 
 		}
@@ -119,6 +155,7 @@ io.on('connection', function(socket){
 		}
 
 		io.emit('usernames',allUsernames);
+		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
   
   
@@ -126,12 +163,14 @@ io.on('connection', function(socket){
 		allUsernames.splice(allUsernames.indexOf(socket.username), 1);
 		console.log('user disconnected');
 		io.emit('usernames',allUsernames);
+		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
   
   
 	// random user generation increment
 	userTemp = userTemp + 1;
 	console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
+	io.emit('usernames',allUsernames);
 });
 
 

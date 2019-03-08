@@ -12,10 +12,9 @@ $(function () {
     //console.log('The cookie "ClientName" exists (ES5)')
 	tempCookie = true;
 	}
+
 	
-	
-	
-	socket.emit('cookie test', tempCookie);
+	socket.emit('cookie test', {cookieStatus: tempCookie, cookieName: document.cookie.replace(/(?:(?:^|.*;\s*)ClientName\s*\=\s*([^;]*).*$)|^.*$/, "$1")});
 
 	$('form').submit(function(e){
 		e.preventDefault(); // prevents page reloading
@@ -60,7 +59,15 @@ $(function () {
 		clientName = msg;
 		$('#currentUser').append($('<p>').text("\n\n\tYou are user: "+msg));
 	});
-				
+	
+	socket.on('refresh',function(msg) {
+		//for(var i = 0; i = 1; i++){
+		location.reload(true);
+		//}
+		
+	});
+
+	
 	socket.on('changeUsername',function(msg) {
 		var time = msg.time;
 		var name1 = msg.name1;
@@ -75,7 +82,19 @@ $(function () {
 		toDisplay = time + "\t" + name1 + " changed to " + name2;
 		$('#messages').append($('<li>').html(toDisplay));
 	});
-				
+			
+	
+	socket.on('cookieUserBUG',function(msg) {
+		var previous = msg.previous;
+		var changed = msg.changed;
+		
+		if (clientName === previous){
+			$('#currentUser').empty();
+			clientName = changed;
+			$('#currentUser').append($('<p>').text("\n\n\tYou are user: "+clientName));
+		}
+	});
+			
 				
 	socket.on('loadChatLog',function(msg) {
 		$('#messages').html('');
@@ -135,13 +154,21 @@ $(function () {
 				
 	socket.on('usernames', function(msg){
 		$('#userlists').empty();
-		var html = '';
+		var html = [];
 		for (i=0; i<msg.length; i++){
-			html += msg[i] + "\t";
-			$('#userlists').append($('<li>').text(msg[i]));
+			html.push(msg[i])
 		}
-		//$('#userlists').append($('<li>').text(html));
+		var tempList = [];
+		for(var x = 0; x < html.length;x++){
+			if (tempList.includes(html[x])===false){
+				tempList.push(html[x]);
+			}
+		}
+		for(var z = 0; z<tempList.length;z++){
+			$('#userlists').append($('<li>').text(tempList[z]));
+		}
 		console.log("test this shit:  "+html);
+		console.log("fuck this shit:  "+tempList);
 	});
 							
 });
