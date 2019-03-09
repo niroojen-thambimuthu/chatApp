@@ -53,3 +53,8 @@ form button {
 	float: right;
 	border: 1px solid blue;
 }
+
+ul {
+  display: flex;
+  flex-direction: column-reverse;
+}

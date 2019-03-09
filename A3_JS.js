@@ -3,6 +3,8 @@ $(function () {
 	var clientName = '';
 	var cookieCounter = 0;
 	var indexCounter = 0;
+	var colorHex = "#000000";
+	var tempList = [];
 	
 	var tempCookie = false;
 	if (document.cookie.split(';').filter(function(item) {
@@ -54,7 +56,15 @@ $(function () {
 			$('#currentUser').append($('<p>').text("\n\n\tYou are user: "+clientName));
 		}
 	});
-			
+	
+	socket.on('changeColor',function(msg) {
+		var checkUSER = msg.name;
+		var checkColor =msg.colorTemp;
+		
+		if (clientName === checkUSER){
+			colorHex = checkColor;
+		}
+	});
 				
 	socket.on('loadChatLog',function(msg) {
 		$('#messages').html('');
@@ -70,11 +80,14 @@ $(function () {
 			var x = time[i];
 			var y = name[i];
 			var z = message[i];
-						
+			
+			
 			if (clientName === y){
+				y = y.fontcolor(colorHex);
 				toDisplay = x.bold() + "\t" + y.bold() + "\t" + z.bold();
 			}
 			else if (z.includes(" changed to ")===true && z.includes(clientName)===true){
+				z = z.fontcolor(colorHex);
 				x = x.bold();
 				y = y.bold();
 				z = z.bold();
@@ -105,6 +118,7 @@ $(function () {
 		var toDisplay = '';
 					
 		if (clientName === name){
+			name = name.fontcolor(colorHex);
 			time = time.bold();
 			name = name.bold();
 			message = message.bold();
@@ -119,8 +133,7 @@ $(function () {
 		console.log("IndexCOunter: "+indexCounter);
 		$('#messages').append($('<li>').html(temp+": "+toDisplay));
 	});
-				
-				
+	
 				
 	socket.on('usernames', function(msg){
 		$('#userlists').empty();
@@ -128,7 +141,7 @@ $(function () {
 		for (i=0; i<msg.length; i++){
 			html.push(msg[i])
 		}
-		var tempList = [];
+		
 		for(var x = 0; x < html.length;x++){
 			if (tempList.includes(html[x])===false){
 				tempList.push(html[x]);
@@ -137,8 +150,8 @@ $(function () {
 		for(var z = 0; z<tempList.length;z++){
 			$('#userlists').append($('<li>').text(tempList[z]));
 		}
-		//console.log("test this shit:  "+html);
-		//console.log("fuck this shit:  "+tempList);
+		console.log("test this shit:  "+html);
+		console.log("fuck this shit:  "+tempList);
 	});
 							
 });

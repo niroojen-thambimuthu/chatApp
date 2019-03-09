@@ -27,9 +27,7 @@ io.on('connection', function(socket){
 	console.log('a user connected\n');
 	
 	var tempUser = "";
-	
-	
-	// https://stackoverflow.com/questions/24041220/sending-message-to-a-specific-id-in-socket-io-1-0
+
 	socket.on('cookie test', function(msg){
 		var cookieStatus = msg.cookieStatus;
 		var cookieName = msg.cookieName;
@@ -51,47 +49,23 @@ io.on('connection', function(socket){
 		
 		
 		console.log("Username check:\t"+tempUser);
-		// emit client username, userlist and chatlogs
 		io.to(socket.id).emit('getCurrentUser',socket.username);
 		io.emit('usernames',allUsernames);	
 		io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
 		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
-	
-	
-	//console.log("ALL connected clients:\t"+clients);
-	
-	// generate random username for connected client
-	//tempUser = "User"+userTemp;
-	//socket.username = tempUser;
-	//allUsernames.push(socket.username);
-	//existedUsername.push(socket.username);
-	
-	//console.log("a user Connected: end");
-	
-	
-	
-	
 
-  
-  
-	// change this for all stuff
+
 	socket.on('chat message', function(msg){
-		//var yCookie = document.cookie;
-		//console.log("Cookie list:\t"+yCookie);
-		
-		//function alertCookie() {
-			//alert(document.cookie);
-		//}
-		
-		
 		var userCheck = "/nick";
+		var colorCheck = "/nickcolor";
 		var spaceCount = (msg.split(" ").length - 1);
 		var userSplit = msg.substring(userCheck.length+1,msg.length);
+		var colorSplit = msg.substring(colorCheck.length+1,msg.length);
 		
 		
 		// Check if client wants to change username
-		if (msg.includes(userCheck) === true && spaceCount === 1 && msg[0]==="/" && msg.indexOf("nick")===1 && userSplit.length !== 0 && userSplit.replace(/\s/g, '').length !== 0){
+		if (msg.includes(userCheck) === true && msg[5]===" " && spaceCount === 1 && msg[0]==="/" && msg.indexOf("nick")===1 && userSplit.length !== 0 && userSplit.replace(/\s/g, '').length !== 0){
 			
 			// if new username is not unique, output msg
 			if (existedUsername.includes(userSplit) === true || userSplit.includes("User") === true){
@@ -145,7 +119,21 @@ io.on('connection', function(socket){
 		}
 	  
 	  // reply different message
-	  
+		else if(msg.includes(colorCheck) === true && spaceCount === 1 && msg[0]==="/" && msg.indexOf("nickcolor")===1 && colorSplit.length===7){
+			console.log("\n\nCOLORS WORRRRRRRKSSSSSSSSSS\n\n");
+			console.log("colorSplit:\t"+colorSplit);
+			console.log("colorSplit length"+colorSplit.length);
+			console.log("msg length"+msg.length);
+			
+			var temp = getCurrentTime();
+			storeTime.push(temp);
+			storeUser.push(socket.username);
+			storeMessage.push(msg);
+			io.emit('changeColor',{name: socket.username, colorTemp: colorSplit})
+			io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
+			
+			
+		}
 		else if (msg.length !== 0 && msg.replace(/\s/g, '').length !== 0){
 			var temp = getCurrentTime();
 			storeTime.push(temp);
