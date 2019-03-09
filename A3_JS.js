@@ -4,7 +4,9 @@ $(function () {
 	var cookieCounter = 0;
 	var indexCounter = 0;
 	var colorHex = "#000000";
-	var tempList = [];
+	
+	//var existedUser = [];
+	
 	
 	var tempCookie = false;
 	if (document.cookie.split(';').filter(function(item) {
@@ -54,6 +56,12 @@ $(function () {
 			$('#currentUser').empty();
 			clientName = changed;
 			$('#currentUser').append($('<p>').text("\n\n\tYou are user: "+clientName));
+			socket.emit('username BUG',clientName );
+			//for (var i = 0; i < existedUser.length; i++){
+				//if (existedUser[i] === previous){
+					//existedUser[i] = changed;
+				//}
+			//}
 		}
 	});
 	
@@ -138,6 +146,7 @@ $(function () {
 	socket.on('usernames', function(msg){
 		$('#userlists').empty();
 		var html = [];
+		var tempList = [];
 		for (i=0; i<msg.length; i++){
 			html.push(msg[i])
 		}
@@ -148,10 +157,14 @@ $(function () {
 			}
 		}
 		for(var z = 0; z<tempList.length;z++){
+			//if (existedUser.includes(tempList[z])===false){
+			//	existedUser.push(tempList[z]);
+			//}
 			$('#userlists').append($('<li>').text(tempList[z]));
 		}
 		console.log("test this shit:  "+html);
 		console.log("fuck this shit:  "+tempList);
+		//console.log("Existed:\t"+existedUser);
 	});
 							
 });

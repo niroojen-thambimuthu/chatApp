@@ -8,6 +8,7 @@ var existedUsername = [];
 var storeTime = [];
 var storeUser = [];
 var storeMessage = [];
+var storeColor = [];
 
 // route handler which i called when we hit main page
 app.get('/', function(req, res){
@@ -27,6 +28,7 @@ io.on('connection', function(socket){
 	console.log('a user connected\n');
 	
 	var tempUser = "";
+	var colorHexValue = "#000000";
 
 	socket.on('cookie test', function(msg){
 		var cookieStatus = msg.cookieStatus;
@@ -52,7 +54,11 @@ io.on('connection', function(socket){
 		io.to(socket.id).emit('getCurrentUser',socket.username);
 		io.emit('usernames',allUsernames);	
 		io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
-		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
+		//console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
+	});
+	
+	socket.on('username BUG',function(msg) {
+		socket.username = msg;
 	});
 
 
@@ -125,10 +131,29 @@ io.on('connection', function(socket){
 			console.log("colorSplit length"+colorSplit.length);
 			console.log("msg length"+msg.length);
 			
+			colorHexValue = colorSplit;
+			
 			var temp = getCurrentTime();
 			storeTime.push(temp);
 			storeUser.push(socket.username);
 			storeMessage.push(msg);
+			
+			for(var i = 0; i<storeUser.length;i++){
+					if(storeUser[i]===socket.username){
+						storeColor[i] = colorHexValue;
+					  //socket.username = userSplit;
+					}
+				}
+			
+			/////////////////////////////////////////// send storecolor
+			
+			for(var i = 0; i<storeTime.length;i++){
+					console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i] + "\t"+ storeColor[i]);
+					//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
+			}
+			
+			
+			
 			io.emit('changeColor',{name: socket.username, colorTemp: colorSplit})
 			io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
 			
@@ -139,11 +164,13 @@ io.on('connection', function(socket){
 			storeTime.push(temp);
 			storeUser.push(socket.username);
 			storeMessage.push(msg);
+			storeColor.push(colorHexValue);
+			console.log("THIS USERNAME:\t"+socket.username +"\t"+colorHexValue);
 			io.emit('eventToClient', { time: temp, name: socket.username, message: msg });
 		}
 
 		io.emit('usernames',allUsernames);
-		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
+		//console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
   
   
