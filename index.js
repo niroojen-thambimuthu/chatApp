@@ -1,3 +1,13 @@
+/*
+*	Niroojen Thambimuthu 10153928
+*	Seng513 A3 - Server-side JavaScript file
+*	March 11, 2019
+*	
+*	index.js
+*/
+
+
+// Variables declaration
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -5,21 +15,23 @@ var userTemp = -1;
 var allUsernames = [];
 var existedUsername = [];
 var existedColors = [];
-
 var storeTime = [];
 var storeUser = [];
 var storeMessage = [];
 var storeColor = [];
 
-// route handler which i called when we hit main page
+
+// load html page to client page
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
+// load css page to client page 
 app.get('/A3_CSS.css',function(req, res){
 	res.sendFile(__dirname + '/A3_CSS.css')
 });
 
+// load client side javascript to client page
 app.get('/A3_JS.js',function(req, res){
 	res.sendFile(__dirname + '/A3_JS.js')
 });
@@ -28,48 +40,66 @@ app.get('/A3_JS.js',function(req, res){
 io.on('connection', function(socket){
 	console.log('a user connected\n');
 	
+	// set username and usercolor
 	var tempUser = "";
 	var colorHexValue = "#000000";
 
+	
+	/*
+	*	Algorithm to receive cookie data from connecting client 
+	*/
 	socket.on('cookie test', function(msg){
+		// load cookie data
 		var cookieStatus = msg.cookieStatus;
 		var cookieName = msg.cookieName;
 		var nameColor = msg.userColor;
 		
-		
+		// if user cookie doesn't exist
 		if (cookieStatus===false){
 			tempUser = "User"+userTemp;
-			console.log("NewUSER:\t"+userTemp);
 			socket.username = tempUser;
 			existedUsername.push(socket.username);
-			console.log("New client ID:\t"+socket.id);
 		}
+		// when user cookie exist
 		else{
+			// set same username and user color
 			tempUser = cookieName;
 			socket.username = tempUser;
 			colorHexValue = nameColor;
-			console.log("HEX value:\t"+colorHexValue);
 		}
-		
+		// push client username
 		allUsernames.push(socket.username);
 		
-		
-		console.log("Username check:\t"+tempUser);
+		// emit clientname and log to connecting client
+		// send usernamelist to all connected clients to update
 		io.to(socket.id).emit('getCurrentUser',socket.username);
 		io.emit('usernames',allUsernames);	
 		io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
-		//console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
 	
+	
+	/*
+	*	Implementation to receive usernamebug for tabs in a browser
+	*/
 	socket.on('username BUG',function(msg) {
 		socket.username = msg;
 	});
 
+	
+	/*
+	*	Implementation to receive username color for tabs in a browser
+	*/
 	socket.on('color BUG',function(msg) {
 		colorHexValue = msg;
 	});
+	
 
+	/*
+	*	Implementation to receive client message 
+	*/
 	socket.on('chat message', function(msg){
+		
+		// checks variabels
 		var userCheck = "/nick";
 		var colorCheck = "/nickcolor";
 		var spaceCount = (msg.split(" ").length - 1);
@@ -93,124 +123,99 @@ io.on('connection', function(socket){
 			else{
 				io.to(socket.id).emit('getCurrentUser',userSplit);
 				io.emit('cookieUserBUG',{previous: socket.username, changed: userSplit});
+				
+				// change usernames for clients of same username
 				for(var i = 0; i<allUsernames.length;i++){
 					if(allUsernames[i]===socket.username){
 						allUsernames[i] = userSplit;
 					}
 				}
 			  
+				// change usernames in log
 				for(var i = 0; i<storeUser.length;i++){
 					if(storeUser[i]===socket.username){
 						storeUser[i] = userSplit;
-					  //socket.username = userSplit;
 					}
 				}
 			  
-			  
+				// load updated log to all clients
 				var toDisplay = socket.username + " changed to " + userSplit;
 				var temp = getCurrentTime();
 				storeTime.push(temp);
 				storeUser.push(" ");			  
 				storeMessage.push(toDisplay);
 				storeColor.push(colorHexValue);
-			  
-				console.log("\n\nLOG test");
-				for(var i = 0; i<storeTime.length;i++){
-					console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i]);
-					//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
-				}
 				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
-				
-				console.log("\n\nChange 1: user:\t"+socket.username);
-				console.log("Change 2: user:\t"+userSplit+"\n\n");
-				
-				
-			 
 				socket.username = userSplit;
 				existedUsername.push(socket.username);
-				//io.sockets.emit('refresh', msg);
 			}
-
 		}
-	  
-	  // reply different message
+		// Check if client wants to change username color
 		else if(msg.includes(colorCheck) === true && spaceCount === 1 && msg[0]==="/" && msg.indexOf("nickcolor")===1 && colorSplit.length===7){
-			console.log("\n\nCOLORS WORRRRRRRKSSSSSSSSSS\n\n");
-			console.log("colorSplit:\t"+colorSplit);
-			console.log("colorSplit length"+colorSplit.length);
-			console.log("msg length"+msg.length);
 			
-			
-			
+			// if new color is not unique, output msg
 			if (existedColors.includes(colorSplit) === true){
 				var temp = getCurrentTime();
-				//colorHexValue = "#000000";
 				storeTime.push(temp);
 				storeUser.push(socket.username);
 				storeMessage.push("Color already exist!!!");
 				storeColor.push(colorHexValue);
-				console.log("WTF IS GREEN:\t"+colorHexValue);
-				//io.emit('eventToClient', { time: temp, name: socket.username, message: "Color already existed!!!" });
 				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
 			}
+			
+			// swap to new username
 			else{
 				
+				// store msg into server log
 				colorHexValue = colorSplit;
-			
 				var temp = getCurrentTime();
 				storeTime.push(temp);
 				storeUser.push(socket.username);
 				storeMessage.push("Color changed!!!");
 				storeColor.push(colorHexValue);
 			
+				// change username color in log
 				for(var i = 0; i<storeUser.length;i++){
 						if(storeUser[i]===socket.username){
 							storeColor[i] = colorHexValue;
-						//socket.username = userSplit;
 						}
 				}
 			
-			/////////////////////////////////////////// send storecolor
-			
-				for(var i = 0; i<storeTime.length;i++){
-						console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i] + "\t"+ storeColor[i]);
-						//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
-				}
-			
-			
+				// emit to update client colorcookie and load updated chat log
 				existedColors.push(colorHexValue);
 				io.emit('changeColor',{name: socket.username, colorTemp: colorSplit})
-				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
-				
+				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});	
 			}		
-			
 		}
+		// If simple message from client
 		else if (msg.length !== 0 && msg.replace(/\s/g, '').length !== 0){
+			
+			// emit message to all clients and update log
 			var temp = getCurrentTime();
 			storeTime.push(temp);
 			storeUser.push(socket.username);
 			storeMessage.push(msg);
 			storeColor.push(colorHexValue);
-			console.log("THIS USERNAME:\t"+socket.username +"\t"+colorHexValue);
 			io.emit('eventToClient', { time: temp, name: socket.username, message: msg, color: colorHexValue});
 		}
-
 		io.emit('usernames',allUsernames);
-		//console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
   
   
+	/*
+	*	Implementation when user disconnect
+	*/
 	socket.on('disconnect', function(){
+		// remove username from userlist
 		allUsernames.splice(allUsernames.indexOf(socket.username), 1);
 		console.log('user disconnected');
+		// emit to all clients of active users
 		io.emit('usernames',allUsernames);
-		console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
   
   
 	// random user generation increment
 	userTemp = userTemp + 1;
-	console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	io.emit('usernames',allUsernames);
 });
 
@@ -221,6 +226,9 @@ http.listen(3000, function(){
 });
 
 
+/*
+*	Function which returns time as hr:mm:ss
+*/
 function getCurrentTime() {
 	var d = new Date();
 	var n = d.toLocaleTimeString();
