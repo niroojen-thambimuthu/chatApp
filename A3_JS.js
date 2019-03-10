@@ -7,6 +7,20 @@ $(function () {
 	
 	//var existedUser = [];
 	
+	var cookieCOLOR = false;
+	
+	if (document.cookie.split(';').filter(function(item) {
+			return item.trim().indexOf('ColorName=') == 0
+		}).length) {
+		cookieCOLOR = true;
+		//document.cookie = "ColorName="+colorHex+";max-age="+600;
+		}
+	
+	if (cookieCOLOR === false){
+			document.cookie = "ColorName="+colorHex+";max-age="+600;
+	}
+	
+	
 	
 	var tempCookie = false;
 	if (document.cookie.split(';').filter(function(item) {
@@ -14,7 +28,10 @@ $(function () {
 	}).length) {
 	tempCookie = true;
 	}
-	socket.emit('cookie test', {cookieStatus: tempCookie, cookieName: document.cookie.replace(/(?:(?:^|.*;\s*)ClientName\s*\=\s*([^;]*).*$)|^.*$/, "$1")});
+	var loadNAME = document.cookie.replace(/(?:(?:^|.*;\s*)ClientName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+	var loadColor = document.cookie.replace(/(?:(?:^|.*;\s*)ColorName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+	console.log("loadcolor check: "+loadColor);
+	socket.emit('cookie test', {cookieStatus: tempCookie, cookieName: loadNAME, userColor: loadColor});
 
 	
 	$('form').submit(function(e){
@@ -71,6 +88,11 @@ $(function () {
 		
 		if (clientName === checkUSER){
 			colorHex = checkColor;
+			console.log("color change complete");
+			document.cookie = "ColorName="+colorHex+";max-age="+600;
+			var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)ColorName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+			console.log("color change check:\t"+cookieValue);
+			socket.emit('color BUG',cookieValue );
 		}
 	});
 				
@@ -79,9 +101,9 @@ $(function () {
 		var time = msg.time;
 		var name = msg.name; // here, it should be data.name instead of data.username
 		var message = msg.message;
+		var colorChange = msg.color
 		var toDisplay = '';
 		
-					
 					
 		for(var i = 0; i<time.length;i++){
 			//console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i]);
@@ -91,23 +113,29 @@ $(function () {
 			
 			
 			if (clientName === y){
-				y = y.fontcolor(colorHex);
+				//y = y.fontcolor(colorHex);
+				y = y.fontcolor(colorChange[i]);
 				toDisplay = x.bold() + "\t" + y.bold() + "\t" + z.bold();
 			}
-			else if (z.includes(" changed to ")===true && z.includes(clientName)===true){
-				z = z.fontcolor(colorHex);
+			else if (z.includes("changed")===true && z.includes(clientName)===true){
+				z = z.fontcolor(colorChange[i]);
 				x = x.bold();
 				y = y.bold();
 				z = z.bold();
+				//y = y.fontcolor(colorChange[i]);
 				toDisplay = x.italics() + "\t" + y.italics() + "\t" + z.italics();
 			}
-			else if (z.includes(" changed to ")===true){
+			else if (z.includes("changed")===true){
+				y = y.fontcolor(colorChange[i]);
+				z = z.fontcolor(colorChange[i]);
 				toDisplay = x.italics() + "\t" + y.italics() + "\t" + z.italics();
 			}
 			else{
+				y = y.fontcolor(colorChange[i]);
 				toDisplay = x + "\t" + y + "\t" + z;
 			}
 					
+			console.log("LOAD color: "+colorChange[i]);
 			//toDisplay = x.bold() + "\t" + y.bold() + "\t" + z.bold();
 			var temp = i + 1;
 			$('#messages').append($('<li>').html(temp+": "+toDisplay));
@@ -123,14 +151,16 @@ $(function () {
 		var time = msg.time;
 		var name = msg.name; // here, it should be data.name instead of data.username
 		var message = msg.message;
+		var colorChange = msg.color
 		var toDisplay = '';
-					
+		
 		if (clientName === name){
-			name = name.fontcolor(colorHex);
 			time = time.bold();
 			name = name.bold();
 			message = message.bold();
 		}
+		
+		name = name.fontcolor(colorChange);
 					
 		toDisplay = time + "\t" + name + "\t" + message;
 								
@@ -138,7 +168,7 @@ $(function () {
 		
 		var temp = indexCounter+1;
 		indexCounter = temp;
-		console.log("IndexCOunter: "+indexCounter);
+		console.log("IndexCOunter: "+indexCounter+"color: "+colorChange);
 		$('#messages').append($('<li>').html(temp+": "+toDisplay));
 	});
 	

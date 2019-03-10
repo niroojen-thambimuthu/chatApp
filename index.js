@@ -4,6 +4,7 @@ var io = require('socket.io')(http);
 var userTemp = -1;
 var allUsernames = [];
 var existedUsername = [];
+var existedColors = [];
 
 var storeTime = [];
 var storeUser = [];
@@ -33,6 +34,7 @@ io.on('connection', function(socket){
 	socket.on('cookie test', function(msg){
 		var cookieStatus = msg.cookieStatus;
 		var cookieName = msg.cookieName;
+		var nameColor = msg.userColor;
 		
 		
 		if (cookieStatus===false){
@@ -45,6 +47,8 @@ io.on('connection', function(socket){
 		else{
 			tempUser = cookieName;
 			socket.username = tempUser;
+			colorHexValue = nameColor;
+			console.log("HEX value:\t"+colorHexValue);
 		}
 		
 		allUsernames.push(socket.username);
@@ -53,7 +57,7 @@ io.on('connection', function(socket){
 		console.log("Username check:\t"+tempUser);
 		io.to(socket.id).emit('getCurrentUser',socket.username);
 		io.emit('usernames',allUsernames);	
-		io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
+		io.to(socket.id).emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
 		//console.log('All usernames : '+ allUsernames + "\n\n\n"); // user checks
 	});
 	
@@ -61,6 +65,9 @@ io.on('connection', function(socket){
 		socket.username = msg;
 	});
 
+	socket.on('color BUG',function(msg) {
+		colorHexValue = msg;
+	});
 
 	socket.on('chat message', function(msg){
 		var userCheck = "/nick";
@@ -76,10 +83,11 @@ io.on('connection', function(socket){
 			// if new username is not unique, output msg
 			if (existedUsername.includes(userSplit) === true || userSplit.includes("User") === true){
 				var temp = getCurrentTime();
-				io.emit('eventToClient', { time: temp, name: socket.username, message: "New nickname is not unique" });
+				io.emit('eventToClient', { time: temp, name: socket.username, message: "New nickname is not unique!!!" });
 				storeTime.push(temp);
 				storeUser.push(socket.username);
-				storeMessage.push("Inputted nickname already taken!!!");
+				storeMessage.push("New nickname is not unique!!!");
+				storeColor.push(colorHexValue);
 			}
 			// swap to new username
 			else{
@@ -104,13 +112,14 @@ io.on('connection', function(socket){
 				storeTime.push(temp);
 				storeUser.push(" ");			  
 				storeMessage.push(toDisplay);
+				storeColor.push(colorHexValue);
 			  
 				console.log("\n\nLOG test");
 				for(var i = 0; i<storeTime.length;i++){
 					console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i]);
 					//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
 				}
-				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
+				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
 				
 				console.log("\n\nChange 1: user:\t"+socket.username);
 				console.log("Change 2: user:\t"+userSplit+"\n\n");
@@ -131,32 +140,49 @@ io.on('connection', function(socket){
 			console.log("colorSplit length"+colorSplit.length);
 			console.log("msg length"+msg.length);
 			
-			colorHexValue = colorSplit;
 			
-			var temp = getCurrentTime();
-			storeTime.push(temp);
-			storeUser.push(socket.username);
-			storeMessage.push(msg);
 			
-			for(var i = 0; i<storeUser.length;i++){
-					if(storeUser[i]===socket.username){
-						storeColor[i] = colorHexValue;
-					  //socket.username = userSplit;
-					}
+			if (existedColors.includes(colorSplit) === true){
+				var temp = getCurrentTime();
+				//colorHexValue = "#000000";
+				storeTime.push(temp);
+				storeUser.push(socket.username);
+				storeMessage.push("Color already exist!!!");
+				storeColor.push(colorHexValue);
+				console.log("WTF IS GREEN:\t"+colorHexValue);
+				//io.emit('eventToClient', { time: temp, name: socket.username, message: "Color already existed!!!" });
+				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
+			}
+			else{
+				
+				colorHexValue = colorSplit;
+			
+				var temp = getCurrentTime();
+				storeTime.push(temp);
+				storeUser.push(socket.username);
+				storeMessage.push("Color changed!!!");
+				storeColor.push(colorHexValue);
+			
+				for(var i = 0; i<storeUser.length;i++){
+						if(storeUser[i]===socket.username){
+							storeColor[i] = colorHexValue;
+						//socket.username = userSplit;
+						}
 				}
 			
 			/////////////////////////////////////////// send storecolor
 			
-			for(var i = 0; i<storeTime.length;i++){
-					console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i] + "\t"+ storeColor[i]);
-					//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
-			}
+				for(var i = 0; i<storeTime.length;i++){
+						console.log(storeTime[i] + "\t" + storeUser[i] + "\t" + storeMessage[i] + "\t"+ storeColor[i]);
+						//io.to(socket.id).emit('loadChatLog', { time: storeTime[i], name: storeUser[i], message: storeMessage[i] });
+				}
 			
 			
-			
-			io.emit('changeColor',{name: socket.username, colorTemp: colorSplit})
-			io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage });
-			
+				existedColors.push(colorHexValue);
+				io.emit('changeColor',{name: socket.username, colorTemp: colorSplit})
+				io.emit('loadChatLog', { time: storeTime, name: storeUser, message: storeMessage, color: storeColor});
+				
+			}		
 			
 		}
 		else if (msg.length !== 0 && msg.replace(/\s/g, '').length !== 0){
@@ -166,7 +192,7 @@ io.on('connection', function(socket){
 			storeMessage.push(msg);
 			storeColor.push(colorHexValue);
 			console.log("THIS USERNAME:\t"+socket.username +"\t"+colorHexValue);
-			io.emit('eventToClient', { time: temp, name: socket.username, message: msg });
+			io.emit('eventToClient', { time: temp, name: socket.username, message: msg, color: colorHexValue});
 		}
 
 		io.emit('usernames',allUsernames);
