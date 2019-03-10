@@ -13,14 +13,14 @@ form {
 	padding: 3px; 
 	position: fixed; 
 	bottom: 0; 
-	width: 50%; 
-	border: 1px solid yellow;
+	width: 100%; 
+	height: 6%;
 }
 
 form input {
 	border: 0; 
 	padding: 10px; 
-	width: 90%; 
+	width: 89%; 
 	margin-right: .5%; 
 }
 
@@ -35,10 +35,8 @@ form button {
 	list-style-type: none; 
 	margin: 0; 
 	padding: 0; 
-	width: 50%; 
-	border: 1px solid red; 
+	width: 100%;  
 	float:left;
-	overflow-y: scroll;
 }
 
 #messages li {
@@ -58,3 +56,37 @@ ul {
   display: flex;
   flex-direction: column-reverse;
 }
+
+#wrapper {
+  display: flex;
+  height: 69%;
+}
+
+#clientUSER{
+	text-align: center;
+  background-color: #C3E0E5;
+  width: 50%;
+  border-style: solid;
+}
+
+#content {
+  text-align: left;
+  background-color: #C3E0E5;
+  width: 50%;
+  border-style: solid;
+  overflow-y: scroll;
+}
+
+#ads {
+  background-color: #C3E0E5;
+  order: 2;
+  width: 50%;
+  border-style: solid;
+}
+
+#header {
+  height: 25%;
+  text-align: center;
+  background-color: #41729F;
+}
+

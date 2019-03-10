@@ -7,15 +7,45 @@
 		<link href="A3_CSS.css" rel="stylesheet">
 	</head>
 	<body>
-		<ul id="messages"></ul>
-		<form action="">
-			<input id="m" autocomplete="off" />
-			<button>Send</button>
-		</form>
-		<div id="testAvaible">
-			<p id="currentUser"></p>
-			<ul id="userlists"></ul>
+		
+		<div id="header">
+			<br />
+			<h1>Chat app</h1>
+			<br />
+			<div id="wrapper">
+  
+				<div id="clientUSER">
+					<p id="currentUser"></p>
+				</div>
+    
+				<div id="ads">
+					<h2>Online USERS</h2>
+				</div>
+  
+			</div>
 		</div>
+	
+		<p><br /></p>
+		<div id="wrapper">
+			<div id="content">
+				<ul id="messages"></ul>
+			</div>
+    
+			<div id="ads">
+				<div id="testAvaible">
+					<ul id="userlists"></ul>
+				</div>
+			</div>
+		</div>  
+  
+		<div id="footer">
+			<form action="">
+				<input id="m" autocomplete="off" />
+				<button>Send</button>
+			</form>
+		</div>
+		
+		
 		<script src="/socket.io/socket.io.js"></script>
 		<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 		<script src="A3_JS.js"></script>
