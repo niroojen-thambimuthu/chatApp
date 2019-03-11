@@ -8,26 +8,27 @@ body {
 	font: 13px Helvetica, Arial; 
 }
 
+
 form {
-	background: #000; 
+	background-color: #41729F;
 	padding: 3px; 
 	position: fixed; 
-	bottom: 0; 
 	width: 100%; 
-	height: 6%;
+	max-height: 100%;
 }
 
 form input {
 	border: 0; 
 	padding: 10px; 
-	width: 89%; 
+	width: 80%; 
 	margin-right: .5%; 
 }
 
 form button {
-	width: 9%; 
-	background: rgb(130, 224, 255); 
-	border: none; 
+	width: 18%; 
+	background: #274472;
+	color: white;
+	border: 1px solid white;
 	padding: 10px;
 
 	}
@@ -47,6 +48,22 @@ form button {
 	background: #eee; 
 }
 
+#userlists{
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+	width: 100%;  
+	float:left;
+}
+
+#userlists li {
+	padding: 5px 10px;
+}
+
+#userlists li:nth-child(odd) {
+	background: #eee; 
+}
+
 .testAvaible{
 	float: right;
 	border: 1px solid blue;
@@ -59,12 +76,30 @@ ul {
 
 #wrapper {
   display: flex;
-  height: 69%;
+  height: 50%;
+  border: 1px solid white;
 }
+
+#wrapper1 {
+  display: flex;
+  flex: auto;
+  height: 75vh;
+  min-width: 350px;
+  border: 1px solid white;
+}
+
+
 
 #clientUSER{
 	text-align: center;
   background-color: #C3E0E5;
+  width: 50%;
+  border-style: solid;
+}
+
+#ads {
+  background-color: #C3E0E5;
+  order: 2;
   width: 50%;
   border-style: solid;
 }
@@ -77,16 +112,13 @@ ul {
   overflow-y: scroll;
 }
 
-#ads {
-  background-color: #C3E0E5;
-  order: 2;
-  width: 50%;
-  border-style: solid;
-}
+
 
 #header {
-  height: 25%;
+	flex: none;
+  height: 15%;
   text-align: center;
   background-color: #41729F;
+  min-width: 350px;
 }
 
