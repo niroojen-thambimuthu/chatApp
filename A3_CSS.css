@@ -8,13 +8,17 @@ body {
 	font: 13px Helvetica, Arial; 
 }
 
+html,
+body {
+	height: 100%;
+}
 
 form {
 	background-color: #41729F;
 	padding: 3px; 
 	position: fixed; 
 	width: 100%; 
-	max-height: 100%;
+	max-height: 20%;
 }
 
 form input {
@@ -31,42 +35,42 @@ form button {
 	border: 1px solid white;
 	padding: 10px;
 
-	}
-#messages {
-	list-style-type: none; 
-	margin: 0; 
-	padding: 0; 
-	width: 100%;  
-	float:left;
 }
 
-#messages li {
+
+#messages {
+	height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+#messages div {
 	padding: 5px 10px; 
 }
 
-#messages li:nth-child(odd) {
+#messages div:nth-child(odd) {
 	background: #eee; 
 }
 
+
 #userlists{
-	list-style-type: none; 
-	margin: 0; 
-	padding: 0; 
-	width: 100%;  
-	float:left;
+	height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
-#userlists li {
+#userlists div {
 	padding: 5px 10px;
 }
 
-#userlists li:nth-child(odd) {
+#userlists div:nth-child(odd) {
 	background: #eee; 
-}
-
-.testAvaible{
-	float: right;
-	border: 1px solid blue;
 }
 
 ul {
@@ -78,14 +82,16 @@ ul {
   display: flex;
   height: 50%;
   border: 1px solid white;
+  min-height: 7%;
 }
 
 #wrapper1 {
   display: flex;
   flex: auto;
-  height: 75vh;
+  height: 77%;
   min-width: 350px;
   border: 1px solid white;
+  align-items: stretch;
 }
 
 
@@ -93,8 +99,10 @@ ul {
 #clientUSER{
 	text-align: center;
   background-color: #C3E0E5;
+  min-height: 50px;
   width: 50%;
   border-style: solid;
+  vertical-align:bottom;
 }
 
 #ads {
@@ -116,7 +124,16 @@ ul {
 
 #header {
 	flex: none;
-  height: 15%;
+  max-height: 20%;
+  text-align: center;
+  background-color: #41729F;
+  min-width: 350px;
+}
+
+#footer {
+	flex: none;
+  height: 6%;
+  max-height: 20%;
   text-align: center;
   background-color: #41729F;
   min-width: 350px;

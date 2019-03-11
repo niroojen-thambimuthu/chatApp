@@ -113,7 +113,7 @@ io.on('connection', function(socket){
 			// if new username is not unique, output msg
 			if (existedUsername.includes(userSplit) === true || userSplit.includes("User") === true){
 				var temp = getCurrentTime();
-				io.emit('eventToClient', { time: temp, name: socket.username, message: "New nickname is not unique!!!" });
+				io.emit('eventToClient', { time: temp, name: socket.username, message: "New nickname is not unique!!!", color: colorHexValue});
 				storeTime.push(temp);
 				storeUser.push(socket.username);
 				storeMessage.push("New nickname is not unique!!!");

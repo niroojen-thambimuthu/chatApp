@@ -173,8 +173,8 @@ $(function () {
 				toDisplay = x + "\t" + y + "\t" + z;
 			}
 			var temp = i + 1;
-			// append message a list a single message at at time
-			$('#messages').append($('<li>').html(temp+": "+toDisplay));
+			// prepend message as a div a single message at at time
+			$('#messages').prepend('<div>' + temp+": "+toDisplay + '</div>');
 					
 		}
 		indexCounter = time.length;
@@ -203,8 +203,8 @@ $(function () {
 								
 		var temp = indexCounter+1;
 		indexCounter = temp;
-		// append new message to list
-		$('#messages').append($('<li>').html(temp+": "+toDisplay));
+		// prepend message as a div
+		$('#messages').prepend('<div>' + temp+": "+toDisplay + '</div>');
 	});
 	
 	
@@ -226,9 +226,9 @@ $(function () {
 				tempList.push(html[x]);
 			}
 		}
-		// append distinct active users to userlist
+		// prepend distinct active users to userlist
 		for(var z = 0; z<tempList.length;z++){
-			$('#userlists').append($('<li>').text(tempList[z]));
+			$('#userlists').prepend('<div>' + tempList[z] + '</div>');
 		}
 	});				
 });
